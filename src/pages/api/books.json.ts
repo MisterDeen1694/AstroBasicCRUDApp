@@ -7,13 +7,17 @@ import { ResponseSentError } from "node_modules/astro/dist/core/errors/errors-da
 
 export const GET: APIRoute = async ({ request }) => {
 	//get query params
+	const query = new URL(request.url).searchParams.get("search");
 
 	//return early if no params
+	if (!query) {
+		return new Response(JSON.stringify({ data: [], error: null }));
+	}
 
 	//query api endpoint
 	try {
 		const res = await fetch(
-			"https://openlibrary.org/search.json?q=the+lord+of+the+rings&limit=6"
+			`https://openlibrary.org/search.json?q=${query}&limit=6`
 		);
 		if (!res.ok) {
 			throw new Error("Failed to fetch books");
@@ -31,7 +35,7 @@ export const GET: APIRoute = async ({ request }) => {
 		}));
 
 		//return
-		return new Response(JSON.stringify({ data: [books], error: null }));
+		return new Response(JSON.stringify({ data: books, error: null }));
 	} catch (error) {
 		console.error(error);
 		return new Response(
@@ -41,5 +45,4 @@ export const GET: APIRoute = async ({ request }) => {
 			})
 		);
 	}
-	return new Response(JSON.stringify({ success: true }));
 };
