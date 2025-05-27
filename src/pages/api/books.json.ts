@@ -1,9 +1,6 @@
-import type {
-	OpenLibraryDocsItem,
-	OpenLibraryResponse,
-} from "@/types/OpenLibrary";
+import type { OpenLibraryDocsItem } from "@/types/OpenLibrary";
 import type { APIRoute } from "astro";
-import { ResponseSentError } from "node_modules/astro/dist/core/errors/errors-data";
+import { Book, db } from "astro:db";
 
 export const GET: APIRoute = async ({ request }) => {
 	//get query params
@@ -38,6 +35,30 @@ export const GET: APIRoute = async ({ request }) => {
 		return new Response(JSON.stringify({ data: books, error: null }));
 	} catch (error) {
 		console.error(error);
+		return new Response(
+			JSON.stringify({
+				data: null,
+				error: error instanceof Error ? error.message : error,
+			})
+		);
+	}
+};
+
+export const POST: APIRoute = async ({ request }) => {
+	const data = await request.json();
+
+	try {
+		if (!data || !data.title || !data.author || !data.cover || !data.id) {
+			throw new Error("No book selected");
+		}
+
+		const dbData = await db
+			.insert(Book)
+			.values({ ...data, status: "to_read" });
+
+		return new Response(JSON.stringify({ data: dbData, error: null }));
+	} catch (error) {
+		console.log(error);
 		return new Response(
 			JSON.stringify({
 				data: null,

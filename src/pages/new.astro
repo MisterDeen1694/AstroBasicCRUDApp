@@ -109,10 +109,7 @@ import BaseLayout from "@/layout/BaseLayout.astro";
 			if (!res.ok) {
 				throw new Error("Unable to fetch books");
 			}
-			console.log(res);
-
 			const { error, data } = await res.json();
-			console.log(data);
 
 			if (error) {
 				throw new Error(error);
@@ -122,6 +119,44 @@ import BaseLayout from "@/layout/BaseLayout.astro";
 				.map((book: TBook) => renderBookCardHTML(book))
 				.join("");
 			newBookSearchForm.removeAttribute("disabled");
+		} catch (error) {
+			console.error(error);
+			newBookSearchForm.removeAttribute("disabled");
+			alert(error instanceof Error ? error.message : "Unknown error");
+		}
+	});
+
+	newBookList.addEventListener("click", async (e) => {
+		if (
+			!(e.target as HTMLElement).classList.contains("add-book-checkbox")
+		) {
+			return;
+		}
+
+		const bookData = JSON.parse(
+			decodeURIComponent((e.target as HTMLButtonElement).dataset.book)
+		);
+
+		try {
+			const res = await fetch("/api/books.json", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(bookData),
+			});
+
+			if (!res.ok) {
+				throw new Error("Failed to add book. Please try again");
+			}
+
+			const { data, error } = await res.json();
+
+			if (error) {
+				throw new Error(error);
+			}
+
+			window.location.href = `/book/${bookData.id}`;
 		} catch (error) {
 			console.error(error);
 			newBookSearchForm.removeAttribute("disabled");
