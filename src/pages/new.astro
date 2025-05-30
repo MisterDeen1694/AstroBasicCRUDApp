@@ -104,7 +104,7 @@ import BaseLayout from "@/layout/BaseLayout.astro";
 			newBookSearchForm.setAttribute("disabled", "MAG NIET");
 
 			const res = await fetch(
-				`/api/books.json?search=${encodeURIComponent(search)}`
+				`/api/books/index.json?search=${encodeURIComponent(search)}`
 			);
 			if (!res.ok) {
 				throw new Error("Unable to fetch books");
@@ -138,7 +138,7 @@ import BaseLayout from "@/layout/BaseLayout.astro";
 		);
 
 		try {
-			const res = await fetch("/api/books.json", {
+			const res = await fetch("/api/books/index.json", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
